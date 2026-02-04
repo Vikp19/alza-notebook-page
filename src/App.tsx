@@ -1,14 +1,18 @@
 import { useState } from "react";
+import "./styles/layout.css";
+import { useProducts } from "./hooks/useProducts";
 import { CategoriesSection } from "./components/Categories/CategoriesSection";
 import { Carousel } from "./components/Carousel/Carousel";
 import { ProductsSection } from "./components/ProductsSection/ProductsSection";
-import { useProducts } from "./hooks/useProducts";
-
 import "./styles/layout.css";
 
 export function App() {
   const [page, setPage] = useState(1);
-  const { products, loading, error } = useProducts(page);
+
+
+  const carouselQuery = useProducts(1);
+
+  const sectionQuery = useProducts(page);
 
   return (
     <main className="layout">
@@ -16,13 +20,15 @@ export function App() {
 
       <CategoriesSection />
 
-      {!loading && !error && <Carousel products={products} />}
+      {!carouselQuery.loading && !carouselQuery.error && (
+        <Carousel products={carouselQuery.products} />
+      )}
 
       <ProductsSection
-        products={products}
+        products={sectionQuery.products}
         page={page}
-        loading={loading}
-        error={error}
+        loading={sectionQuery.loading}
+        error={sectionQuery.error}
         onPageChange={setPage}
       />
     </main>

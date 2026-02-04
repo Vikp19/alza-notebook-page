@@ -2,28 +2,99 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  background: #f5f5f5;
+  border: 1px solid #000;
+  border-radius: 4px;
+  padding: 8px;
 }
 
-.image {
+.imageWrapper {
+  display: block;
   aspect-ratio: 1 / 1;
   background: #ddd;
 }
 
-.desc {
+.imageWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-grow: 1;
+}
+
+.title {
+  font-weight: 600;
+  text-decoration: none;
+  color: #000;
+}
+
+.description {
   font-size: 14px;
   color: #666;
 }
 
-.rating {
-  color: gold;
+.bottomRow {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.price span {
+.priceBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: 600;
+  color: #4caf50;
+}
+
+.oldPrice {
+  font-size: 14px;
   text-decoration: line-through;
-  margin-left: 8px;
   color: #888;
 }
 
 .buy {
-  margin-top: auto;
+  position: relative;
+}
+
+.buyButton {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.buyMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  list-style: none;
+  padding: 4px 0;
+  min-width: 160px;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.buyMenu li {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.buyMenu li:hover {
+  background: #f0f0f0;
+}
+
+.availability {
+  font-size: 13px;
+  font-weight: 600;
 }

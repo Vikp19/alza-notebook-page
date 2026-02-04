@@ -2,36 +2,32 @@ import { post } from "../http";
 import { mapAlzaProductToCard } from "./products.mapper";
 import type { AlzaProductsResponse, ProductCard } from "./products.types";
 
-const ALZA_PRODUCTS_URL = "/alza-api/Services/RestService.svc/v2/products";
-
-export interface GetProductsParams {
+export type GetProductsParams = {
   categoryId: number;
   page?: number;
-}
+};
+
+/* 🔽 ВОТ ЗДЕСЬ */
+const USE_MOCK = true;
+/* 🔼 ВОТ ЗДЕСЬ */
 
 export async function getProductCards(
   params: GetProductsParams,
 ): Promise<ProductCard[]> {
-  const response = await post<AlzaProductsResponse>(ALZA_PRODUCTS_URL, {
-    filterParameters: {
-      id: params.categoryId,
-      isInStockOnly: false,
-      newsOnly: false,
-      wearType: 0,
-      orderBy: 0,
-      page: params.page ?? 1,
-      params: [],
-      producers: [],
-      sendPrices: true,
-      type: "action",
-      typeId: "",
-      branchId: "",
-    },
-  });
+ if (USE_MOCK) {
+  const { getProductCardsMock } = await import("./products.mock.service");
+  return getProductCardsMock();
+}
 
-  if (response.err > 0) {
-    throw new Error(response.msg ?? "Alza API error");
-  }
+  const response = await post<AlzaProductsResponse>(
+    "/alza-api/Services/RestService.svc/v2/products",
+    {
+      filter: {
+        categoryId: params.categoryId,
+        page: params.page ?? 1,
+      },
+    },
+  );
 
   return response.data.map(mapAlzaProductToCard);
 }

@@ -8,12 +8,10 @@
   align-items: center;
 }
 
-/* ⬇️ ОБЁРТКА ДЛЯ ПОЗИЦИОНИРОВАНИЯ КНОПОК */
 .carouselWrapper {
   position: relative;
 }
 
-/* viewport остаётся с overflow hidden */
 .viewport {
   overflow: hidden;
   margin-top: 16px;
@@ -31,7 +29,6 @@
   padding: 0 8px;
 }
 
-/* ⬇️ КНОПКИ НАВИГАЦИИ */
 .navButton {
   position: absolute;
   top: 50%;
@@ -47,7 +44,6 @@
   right: 0;
 }
 
-/* 📱 АДАПТИВ */
 @media (max-width: 1024px) {
   .slide {
     flex-basis: 25%;

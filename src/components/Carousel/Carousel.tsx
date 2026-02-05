@@ -10,28 +10,34 @@ interface Props {
 }
 
 const MAX_ITEMS = 10;
+const CLONES = 1;
 
 export function Carousel({ products }: Props) {
-  const items = useMemo(() => pickRandom(products, MAX_ITEMS), [products]);
+  const baseItems = useMemo(() => pickRandom(products, MAX_ITEMS), [products]);
+
+  const items = useMemo(() => {
+    if (baseItems.length === 0) return [];
+    return [
+      ...baseItems.slice(-CLONES),
+      ...baseItems,
+      ...baseItems.slice(0, CLONES),
+    ];
+  }, [baseItems]);
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(CLONES);
   const [slideWidth, setSlideWidth] = useState(0);
-  const [visibleCount, setVisibleCount] = useState(1);
+  const [isAnimating, setIsAnimating] = useState(true);
 
   useLayoutEffect(() => {
-    if (!viewportRef.current || !trackRef.current) return;
+    if (!trackRef.current) return;
 
-    const viewportWidth = viewportRef.current.clientWidth;
     const slide = trackRef.current.children[0] as HTMLElement | undefined;
     if (!slide) return;
 
-    const width = slide.clientWidth;
-
-    setSlideWidth(width);
-    setVisibleCount(Math.floor(viewportWidth / width));
+    setSlideWidth(slide.clientWidth);
   }, [items.length]);
 
   useLayoutEffect(() => {
@@ -41,35 +47,45 @@ export function Carousel({ products }: Props) {
       const slide = trackRef.current!.children[0] as HTMLElement | undefined;
       if (!slide) return;
 
-      const viewportWidth = viewportRef.current!.clientWidth;
-      const width = slide.clientWidth;
-
-      setSlideWidth(width);
-      setVisibleCount(Math.floor(viewportWidth / width));
+      setSlideWidth(slide.clientWidth);
     });
 
     observer.observe(viewportRef.current);
-
     return () => observer.disconnect();
   }, []);
 
-  const maxIndex = Math.max(0, items.length - visibleCount);
-
-  const prev = useCallback(() => {
-    setIndex((i) => Math.max(0, i - 1));
+  const next = useCallback(() => {
+    setIndex((i) => i + 1);
   }, []);
 
-  const next = useCallback(() => {
-    setIndex((i) => Math.min(maxIndex, i + 1));
-  }, [maxIndex]);
+  const prev = useCallback(() => {
+    setIndex((i) => i - 1);
+  }, []);
 
   const swipeHandlers = useSwipe(next, prev);
 
+  const handleTransitionEnd = () => {
+    if (index === 0) {
+      setIsAnimating(false);
+      setIndex(baseItems.length);
+      return;
+    }
+
+    if (index === baseItems.length + CLONES) {
+      setIsAnimating(false);
+      setIndex(CLONES);
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (!isAnimating) {
+      requestAnimationFrame(() => setIsAnimating(true));
+    }
+  }, [isAnimating]);
+
   const offset = index * slideWidth;
 
-  if (!items.length) {
-    return null;
-  }
+  if (!items.length) return null;
 
   return (
     <section className={styles.carousel}>
@@ -82,31 +98,33 @@ export function Carousel({ products }: Props) {
           <div
             className={styles.track}
             ref={trackRef}
+            onTransitionEnd={handleTransitionEnd}
             style={{
               transform: `translateX(-${offset}px)`,
+              transition: isAnimating ? "transform 0.3s ease" : "none",
             }}
           >
-            {items.map((product) => (
-              <div key={product.id} className={styles.slide}>
+            {items.map((product, i) => (
+              <div key={`${product.id}-${i}`} className={styles.slide}>
                 <ProductCardCarousel product={product} />
               </div>
             ))}
           </div>
         </div>
+
         <button
           type="button"
           className={`${styles.navButton} ${styles.prev}`}
           onClick={prev}
-          disabled={index === 0}
           aria-label="Předchozí produkt"
         >
           ←
         </button>
+
         <button
           type="button"
           className={`${styles.navButton} ${styles.next}`}
           onClick={next}
-          disabled={index === maxIndex}
           aria-label="Další produkt"
         >
           →

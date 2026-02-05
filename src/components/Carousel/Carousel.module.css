@@ -21,12 +21,13 @@
 
 .track {
   display: flex;
-  transition: transform 0.4s ease;
+  will-change: transform;
 }
 
 .slide {
   flex: 0 0 20%;
   padding: 0 8px;
+  box-sizing: border-box;
 }
 
 .navButton {
